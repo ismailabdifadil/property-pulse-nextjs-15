@@ -24,12 +24,17 @@ const MessagesPage = async () => {
     .populate('property', 'name')
     .lean()
 
-  const messages = [...unreadMessages, ...readMessages].map((messageDoc) => {
-    const message = convertToSerializableObject(messageDoc)
-    message.sender = convertToSerializableObject(messageDoc.sender)
-    message.property = convertToSerializableObject(messageDoc.property)
-    return message
-  })
+  const messages = [...unreadMessages, ...readMessages]
+    .map((messageDoc) => {
+      if (!messageDoc || !messageDoc.sender || !messageDoc.property) return null
+
+      const message = JSON.parse(JSON.stringify(messageDoc))
+      message.sender = JSON.parse(JSON.stringify(messageDoc.sender))
+      message.property = JSON.parse(JSON.stringify(messageDoc.property))
+
+      return message
+    })
+    .filter(Boolean)
 
   return (
     <>
